@@ -1,54 +1,14 @@
 # Transient Solution of the Diffusion Equation with Non-Homogeneous Boundary Conditions
 
-## Overview
+## Problem Statement
 
-This project presents the analytical solution of the one-dimensional diffusion equation with **non-homogeneous Dirichlet boundary conditions** using the **steady-state regime method**.
+This project presents the analytical solution of the one-dimensional diffusion equation with non-homogeneous Dirichlet boundary conditions using the **steady-state regime method**.
 
-The solution is decomposed into a steady-state component and a transient component. The transient component is obtained using the **separation of variables method** and is represented as a Fourier sine series.
+The governing equation is
 
-The Python implementation was developed in **JupyterLab** and evaluates the transient pressure solution for multiple pressure differences.
+$$\frac{\partial^2 p}{\partial x^2}=\frac{1}{\alpha}\frac{\partial p}{\partial t}$$
 
----
-
-## Governing Equation
-
-The one-dimensional diffusion equation is given by
-
-$$
-\frac{\partial^2 p}{\partial x^2}
-=
-\frac{1}{\alpha}
-\frac{\partial p}{\partial t}
-$$
-
-where:
-
-* $p$ is pressure,
-* $x$ is the spatial coordinate,
-* $t$ is time,
-* $\alpha$ is the diffusivity.
-
-The parameters used in this implementation are:
-
-$$
-\alpha = 1\; \text{cm}^2/\text{s}
-$$
-
-$$
-L = 1\; \text{cm}
-$$
-
-$$
-t = 1\; \text{s}
-$$
-
-where $L$ is the length of the spatial domain.
-
----
-
-## Boundary Conditions
-
-The problem is subject to non-homogeneous Dirichlet boundary conditions:
+subject to the boundary conditions
 
 $$
 p(0,t)=p_1
@@ -58,54 +18,40 @@ $$
 p(L,t)=p_2
 $$
 
-where $p_1$ and $p_2$ are the prescribed pressures at the boundaries.
-
-The pressure difference is defined in the mathematical formulation as
-
-$$
-\boxed{\Delta p=p_2-p_1}
-$$
-
----
-
-## Initial Condition
-
-The initial pressure distribution is defined as
+and the initial condition
 
 $$
 p(x,0)=\phi(x)
 $$
 
-with
+where
 
 $$
-\boxed{
-\phi(x)=\frac{p_1}{2}+(p_2-p_1)x
-}
+\phi(x)=\frac{p_1}{2}+(p_2-p_1)x.
 $$
+
+The pressure difference is defined as
+
+$$
+\Delta p=p_2-p_1.
+$$
+
+The problem is solved by decomposing the pressure into a steady-state and a transient component:
+
+$$
+p(x,t)=E(x)+p^*(x,t)
+$$
+
+where $E(x)$ represents the steady-state solution and $p^*(x,t)$ represents the transient solution.
 
 ---
 
-## Steady-State Regime Method
+## Steady-State Solution
 
-Because the boundary conditions are non-homogeneous, the pressure is decomposed into a steady-state and a transient component:
-
-$$
-p(x,t)=E(x)+u(x,t)
-$$
-
-where $E(x)$ is the steady-state solution and $u(x,t)$ is the transient solution.
-
-At steady state,
+The steady-state component satisfies
 
 $$
 \frac{d^2E}{dx^2}=0.
-$$
-
-Therefore,
-
-$$
-E(x)=C_1x+C_2.
 $$
 
 Applying the boundary conditions,
@@ -120,133 +66,78 @@ $$
 E(L)=p_2,
 $$
 
-gives
+the steady-state solution is
 
 $$
-\boxed{
-E(x)=p_1+\frac{p_2-p_1}{L}x
-}
+E(x)=p_1+\frac{p_2-p_1}{L}x.
 $$
 
-or, using $\Delta p$,
+Using the definition of $\Delta p$:
 
 $$
-\boxed{
-E(x)=p_1+\frac{\Delta p}{L}x
-}
+E(x)=p_1+\frac{\Delta p}{L}x.
 $$
 
-The transient component therefore satisfies homogeneous Dirichlet boundary conditions:
+The transient component is therefore
 
 $$
-u(0,t)=0
+p^*(x,t)=p(x,t)-E(x),
+$$
+
+and satisfies homogeneous Dirichlet boundary conditions:
+
+$$
+p^*(0,t)=0
 $$
 
 $$
-u(L,t)=0.
+p^*(L,t)=0.
 $$
 
 ---
 
 ## Transient Solution
 
-Using separation of variables, the transient solution is expressed as a Fourier sine series:
+Using separation of variables, the transient solution is expressed as
 
 $$
-u(x,t)=
-\sum_{n=1}^{\infty}
-B_n
-\sin\left(\frac{n\pi x}{L}\right)
-e^{-\alpha\left(\frac{n\pi}{L}\right)^2t}.
-$$
+p^*(x,t)=\sum_{n=1}^{\infty}B_n\sin(\lambda_n x)e^{-\lambda_n^2\alpha t}$$
 
-The eigenvalues are
+where the eigenvalues are
 
 $$
-\boxed{
-\lambda_n=\frac{n\pi}{L}
-}
+\lambda_n=\frac{n\pi}{L}.
 $$
 
-so the solution can also be written as
-
-$$
-u(x,t)=
-\sum_{n=1}^{\infty}
-B_n
-\sin(\lambda_nx)
-e^{-\lambda_n^2\alpha t}.
-$$
-
-The Fourier coefficients are calculated from the initial condition of the transient component:
-
-$$
-u(x,0)=\phi(x)-E(x).
-$$
-
-Therefore,
+The Fourier coefficients are obtained from the initial condition:
 
 $$
 B_n=
 \frac{2}{L}
 \int_0^L
-[\phi(x)-E(x)]
-\sin\left(\frac{n\pi x}{L}\right)dx.
+\left[\phi(x)-E(x)\right]
+\sin\left(\frac{n\pi x}{L}\right)
+\,dx.
 $$
 
-Using the specified initial condition,
+Substituting the initial condition and the steady-state solution gives
+
+$$p^*(x,0)=-\frac{p_1}{2}+\Delta p\left(1-\frac{1}{L}\right)x.$$
+
+Therefore, the Fourier coefficients are
+
+$$B_n=\frac{p_1[\cos(n\pi)-1]-2\Delta p(L-1)\cos(n\pi)}{n\pi}.$$
+
+Since
 
 $$
-\phi(x)=\frac{p_1}{2}+\Delta p\,x,
+\Delta p=p_2-p_1,
 $$
 
-and
+the coefficients can also be written as
 
-$$
-E(x)=p_1+\frac{\Delta p}{L}x,
-$$
+$$B_n=\frac{p_1[\cos(n\pi)-1]-2(p_2-p_1)(L-1)\cos(n\pi)}{n\pi}.$$
 
-gives
-
-$$
-u(x,0)=
--\frac{p_1}{2}
-+
-\Delta p
-\left(1-\frac{1}{L}\right)x.
-$$
-
-After evaluating the integral, the Fourier coefficient becomes
-
-$$
-\boxed{
-B_n=
-\frac{
-p_1[\cos(n\pi)-1]
--
-2\Delta p(L-1)\cos(n\pi)
-}{n\pi}
-}
-$$
-
-where
-
-$$
-\Delta p=p_2-p_1.
-$$
-
-Equivalently, directly in terms of $p_1$ and $p_2$:
-
-$$
-\boxed{
-B_n=
-\frac{
-p_1[\cos(n\pi)-1]
--
-2(p_2-p_1)(L-1)\cos(n\pi)
-}{n\pi}
-}
-$$
 
 ---
 
