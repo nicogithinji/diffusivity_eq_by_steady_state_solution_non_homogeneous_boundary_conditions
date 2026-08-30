@@ -1,18 +1,18 @@
-# Diffusion Equation with Non-Homogeneous Dirichlet Boundary Conditions
+# Transient Solution of the Diffusion Equation with Non-Homogeneous Boundary Conditions
 
-## Project Overview
+## Overview
 
-This project presents the solution of the one-dimensional diffusion equation with non-homogeneous Dirichlet boundary conditions using the **steady-state regime method**.
+This project presents the analytical solution of the one-dimensional diffusion equation with **non-homogeneous Dirichlet boundary conditions** using the **steady-state regime method**.
 
-The transient solution is obtained by decomposing the pressure field into a steady-state component and a transient component. The transient component is then solved using the method of separation of variables and represented as a Fourier sine series.
+The solution is decomposed into a steady-state component and a transient component. The transient component is obtained using the **separation of variables method** and is represented as a Fourier sine series.
 
-The Python implementation was developed in **JupyterLab** and evaluates the transient pressure solution for multiple pressure differences, $\Delta p$.
+The Python implementation was developed in **JupyterLab** and evaluates the transient pressure solution for multiple pressure differences.
 
 ---
 
 ## Governing Equation
 
-The one-dimensional diffusion equation is written as
+The one-dimensional diffusion equation is given by
 
 $$
 \frac{\partial^2 p}{\partial x^2}
@@ -28,238 +28,389 @@ where:
 * $t$ is time,
 * $\alpha$ is the diffusivity.
 
-In this implementation:
+The parameters used in this implementation are:
 
 $$
 \alpha = 1\; \text{cm}^2/\text{s}
 $$
 
-and the domain is
-
 $$
-0 \leq x \leq L
+L = 1\; \text{cm}
 $$
 
-with
+$$
+t = 1\; \text{s}
+$$
 
-$$
-L = 1\; \text{cm}.
-$$
+where $L$ is the length of the spatial domain.
 
 ---
 
 ## Boundary Conditions
 
-The pressure is prescribed at both boundaries using Dirichlet boundary conditions:
+The problem is subject to non-homogeneous Dirichlet boundary conditions:
 
 $$
-p(0,t) = p_1
+p(0,t)=p_1
 $$
 
 $$
-p(L,t) = p_2
+p(L,t)=p_2
 $$
 
-where $p_1$ and $p_2$ are the pressures at the two boundaries.
+where $p_1$ and $p_2$ are the prescribed pressures at the boundaries.
 
-Since the boundary conditions are non-homogeneous, the pressure solution is decomposed as
+The pressure difference is defined in the mathematical formulation as
 
 $$
-p(x,t) = E(x) + u(x,t)
+\boxed{\Delta p=p_2-p_1}
 $$
-
-where:
-
-* $E(x)$ is the steady-state solution,
-* $u(x,t)$ is the transient solution.
-
-The steady-state component satisfies the boundary conditions, allowing the transient problem to be formulated with homogeneous boundary conditions.
 
 ---
 
 ## Initial Condition
 
-The pressure distribution at $t=0$ is defined by the initial condition
+The initial pressure distribution is defined as
 
 $$
-p(x,0)=\phi(x).
+p(x,0)=\phi(x)
 $$
 
-The initial condition is used to determine the Fourier coefficients of the transient solution.
-
-After subtracting the steady-state solution, the corresponding initial condition for the transient component is
+with
 
 $$
-u(x,0)=\phi(x)-E(x).
+\boxed{
+\phi(x)=\frac{p_1}{2}+(p_2-p_1)x
+}
+$$
+
+---
+
+## Steady-State Regime Method
+
+Because the boundary conditions are non-homogeneous, the pressure is decomposed into a steady-state and a transient component:
+
+$$
+p(x,t)=E(x)+u(x,t)
+$$
+
+where $E(x)$ is the steady-state solution and $u(x,t)$ is the transient solution.
+
+At steady state,
+
+$$
+\frac{d^2E}{dx^2}=0.
+$$
+
+Therefore,
+
+$$
+E(x)=C_1x+C_2.
+$$
+
+Applying the boundary conditions,
+
+$$
+E(0)=p_1
+$$
+
+and
+
+$$
+E(L)=p_2,
+$$
+
+gives
+
+$$
+\boxed{
+E(x)=p_1+\frac{p_2-p_1}{L}x
+}
+$$
+
+or, using $\Delta p$,
+
+$$
+\boxed{
+E(x)=p_1+\frac{\Delta p}{L}x
+}
+$$
+
+The transient component therefore satisfies homogeneous Dirichlet boundary conditions:
+
+$$
+u(0,t)=0
+$$
+
+$$
+u(L,t)=0.
 $$
 
 ---
 
 ## Transient Solution
 
-For homogeneous Dirichlet boundary conditions, the transient solution can be expressed as a Fourier sine series:
+Using separation of variables, the transient solution is expressed as a Fourier sine series:
 
 $$
-u(x,t)
-=
+u(x,t)=
 \sum_{n=1}^{\infty}
 B_n
-\sin(\lambda_n x)
-e^{-\lambda_n^2\alpha t}
+\sin\left(\frac{n\pi x}{L}\right)
+e^{-\alpha\left(\frac{n\pi}{L}\right)^2t}.
 $$
 
-where the eigenvalues are
+The eigenvalues are
 
 $$
-\lambda_n = \frac{n\pi}{L}.
+\boxed{
+\lambda_n=\frac{n\pi}{L}
+}
 $$
 
-The Fourier coefficients are obtained from the initial condition:
+so the solution can also be written as
 
 $$
-B_n =
+u(x,t)=
+\sum_{n=1}^{\infty}
+B_n
+\sin(\lambda_nx)
+e^{-\lambda_n^2\alpha t}.
+$$
+
+The Fourier coefficients are calculated from the initial condition of the transient component:
+
+$$
+u(x,0)=\phi(x)-E(x).
+$$
+
+Therefore,
+
+$$
+B_n=
 \frac{2}{L}
 \int_0^L
-u(x,0)
-\sin\left(\frac{n\pi x}{L}\right)
-dx.
+[\phi(x)-E(x)]
+\sin\left(\frac{n\pi x}{L}\right)dx.
 $$
 
-In the numerical implementation, the infinite series is truncated to a finite number of terms.
+Using the specified initial condition,
+
+$$
+\phi(x)=\frac{p_1}{2}+\Delta p\,x,
+$$
+
+and
+
+$$
+E(x)=p_1+\frac{\Delta p}{L}x,
+$$
+
+gives
+
+$$
+u(x,0)=
+-\frac{p_1}{2}
++
+\Delta p
+\left(1-\frac{1}{L}\right)x.
+$$
+
+After evaluating the integral, the Fourier coefficient becomes
+
+$$
+\boxed{
+B_n=
+\frac{
+p_1[\cos(n\pi)-1]
+-
+2\Delta p(L-1)\cos(n\pi)
+}{n\pi}
+}
+$$
+
+where
+
+$$
+\Delta p=p_2-p_1.
+$$
+
+Equivalently, directly in terms of $p_1$ and $p_2$:
+
+$$
+\boxed{
+B_n=
+\frac{
+p_1[\cos(n\pi)-1]
+-
+2(p_2-p_1)(L-1)\cos(n\pi)
+}{n\pi}
+}
+$$
 
 ---
 
 ## Numerical Implementation
 
-The solution is implemented in Python using:
+The analytical solution is implemented in Python using a finite number of terms from the Fourier series.
 
-* **NumPy** for numerical calculations,
-* **Pandas** for handling the pressure data,
-* **Matplotlib** for visualization,
-* **Math** for exponential calculations.
+The number of terms can be controlled using:
 
-The main parameters used in the notebook are:
+```python
+terminos = 5
+```
 
-| Parameter                | Value | Units |
-| ------------------------ | ----: | ----- |
-| Diffusivity $\alpha$     |     1 | cm²/s |
-| Domain length $L$        |     1 | cm    |
-| Time $t$                 |     1 | s     |
-| Number of terms          |     5 | —     |
-| Number of pressure pairs |     7 | —     |
+The eigenvalues are calculated using:
+
+```python
+def lambda_n(n):
+    lam = n * np.pi / L
+    return lam
+```
+
+The Fourier coefficients are calculated using:
+
+```python
+def Bn(n, p1, p2):
+    B = (p1 * (np.cos(n*np.pi) - 1)
+         - 2*(p2-p1)*(L-1)*np.cos(n*np.pi)) / (n*np.pi)
+    return B
+```
+
+The transient solution is evaluated as:
+
+```python
+def p(x, t, p1, p2):
+    sumatoria = 0
+    for i in range(1, terminos + 1):
+        sumatoria += Bn(i, p1, p2) \
+            * np.sin(lambda_n(i) * x) \
+            * math.exp(-(lambda_n(i)**2 * difusividad * t))
+    return sumatoria
+```
 
 ---
 
-## Pressure Data Generation
+## Pressure Difference Data
 
-The code generates seven pairs of boundary pressures $(p_1,p_2)$ using a fixed random seed.
+Seven pairs of boundary pressures $(p_1,p_2)$ are generated using a fixed random seed.
 
-For each pair:
+The pressure values are generated such that
 
 $$
-\Delta p = p_1-p_2
+p_2<p_1.
 $$
 
-is calculated.
+Therefore, according to the mathematical definition,
 
-The resulting pressure differences are sorted before plotting the solutions.
+$$
+\Delta p=p_2-p_1<0.
+$$
 
-This allows the effect of different pressure differences on the transient solution to be investigated.
+However, for visualization and presentation purposes, the table displays the **magnitude** of the pressure difference:
+
+$$
+|\Delta p|=p_1-p_2.
+$$
+
+This positive value is used only for displaying and sorting the data. The actual analytical solution and the calculation of $B_n$ use
+
+$$
+\Delta p=p_2-p_1.
+$$
 
 ---
 
-## Visualization
+## Results and Visualization
 
-For each pressure pair, the code evaluates the transient solution over 1000 spatial points:
+For each pair of boundary pressures, the transient solution is evaluated at 1000 spatial points over the domain:
 
 $$
-x \in [0,L].
+0\leq x\leq L.
 $$
-
-The resulting plot shows:
-
-* **x-axis:** spatial position $x$ in cm,
-* **y-axis:** transient pressure solution $p^*(x,t)$,
-* **different curves:** different values of $\Delta p$.
 
 The current implementation evaluates the solution at
 
 $$
-t=1\;\text{s}.
+t=1\;\text{s}
 $$
 
-Only the **transient component** of the solution is plotted.
+using the first five terms of the Fourier series.
 
-Therefore, the plotted quantity is not the complete pressure field $p(x,t)$, but the transient contribution resulting from the Fourier-series solution.
+The resulting plot shows:
+
+* **x-axis:** spatial coordinate $x$ in cm.
+* **y-axis:** transient pressure $p^*(x,t)$ in dyn/cm².
+* **Each curve:** a different pressure difference between the two boundaries.
+
+Only the **transient component** is plotted. Therefore, the plotted quantity represents $u(x,t)$ rather than the complete pressure solution
+
+$$
+p(x,t)=E(x)+u(x,t).
+$$
+
+The steady-state component is not included in the plotted curves.
 
 ---
 
-## Code Structure
+## Parameters
 
-The notebook is organized into four main sections:
+| Parameter            | Value | Units |
+| -------------------- | ----: | ----- |
+| Diffusivity $\alpha$ |     1 | cm²/s |
+| Domain length $L$    |     1 | cm    |
+| Evaluation time $t$  |     1 | s     |
+| Fourier terms        |     5 | —     |
+| Pressure pairs       |     7 | —     |
+| Spatial points       |  1000 | —     |
 
-### 1. Imports
+---
 
-The required Python libraries are imported.
+## Dependencies
 
-### 2. Input Data
+The project requires Python and the following libraries:
 
-The physical and numerical parameters are defined:
+* NumPy
+* Pandas
+* Matplotlib
+* Math
 
-```python
-difusividad = 1
-t = 1
-L = 1
-terminos = 5
-muestras = 7
+They can be installed using:
+
+```bash
+pip install numpy pandas matplotlib
 ```
-
-### 3. Solution Functions
-
-The notebook defines functions for:
-
-* calculating the eigenvalues $\lambda_n$,
-* calculating the Fourier coefficients $B_n$,
-* evaluating the transient pressure solution.
-
-### 4. Results
-
-The transient solution is evaluated for each pressure pair and plotted as a function of $x$.
 
 ---
 
 ## How to Run
 
 1. Install Python and JupyterLab.
-2. Install the required packages:
-
-```bash
-pip install numpy pandas matplotlib
-```
-
-3. Open the notebook in JupyterLab.
+2. Install the required dependencies.
+3. Open the `.ipynb` notebook in JupyterLab.
 4. Run the cells sequentially.
-5. Modify the input parameters if different diffusivity, domain length, time, number of terms, or pressure differences are required.
+5. Modify the input parameters if different physical or numerical conditions are required.
 
 ---
 
-## Future Improvements
+## Possible Improvements
 
-Possible improvements to the implementation include:
+Some possible extensions of the project are:
 
-* Increasing the number of terms in the Fourier series.
-* Allowing arbitrary initial pressure distributions $\phi(x)$.
-* Comparing the analytical solution with a numerical finite-difference solution.
-* Plotting the complete pressure solution $p(x,t)$ instead of only the transient component.
-* Evaluating the solution at multiple times.
-* Investigating the convergence of the Fourier series as the number of terms increases.
+* Increase the number of Fourier terms to study convergence.
+* Evaluate the solution at different times.
+* Allow arbitrary initial conditions $\phi(x)$.
+* Plot the complete pressure solution $p(x,t)$.
+* Compare the analytical solution with a finite-difference numerical solution.
+* Study the influence of diffusivity and domain length on the transient response.
+* Improve the visualization by comparing different pressure differences in a systematic parameter study.
 
 ---
 
 ## Technologies
 
-* Python
-* NumPy
-* Pandas
-* Matplotlib
-* JupyterLab
+**Language:** Python
+
+**Environment:** JupyterLab
+
+**Libraries:** NumPy, Pandas, Matplotlib
