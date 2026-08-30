@@ -282,19 +282,6 @@ pip install numpy pandas matplotlib
 4. Run the cells sequentially.
 5. Modify the input parameters if different physical or numerical conditions are required.
 
----
-
-## Possible Improvements
-
-Some possible extensions of the project are:
-
-* Increase the number of Fourier terms to study convergence.
-* Evaluate the solution at different times.
-* Allow arbitrary initial conditions $\phi(x)$.
-* Plot the complete pressure solution $p(x,t)$.
-* Compare the analytical solution with a finite-difference numerical solution.
-* Study the influence of diffusivity and domain length on the transient response.
-* Improve the visualization by comparing different pressure differences in a systematic parameter study.
 
 ---
 
